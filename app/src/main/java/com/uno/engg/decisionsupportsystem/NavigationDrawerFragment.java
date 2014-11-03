@@ -7,6 +7,7 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Intent;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -14,6 +15,7 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -25,7 +27,19 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.parse.FindCallback;
+import com.parse.Parse;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Objects;
 
 /**
  * Fragment used for managing interactions for and presentation of a navigation drawer.
@@ -58,6 +72,7 @@ public class NavigationDrawerFragment extends Fragment{
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerListView;
     private View mFragmentContainerView;
+    public String[] projectsArray = new String[0];
 
     private int mCurrentSelectedPosition = 0;
     private boolean mFromSavedInstanceState;
@@ -81,7 +96,7 @@ public class NavigationDrawerFragment extends Fragment{
         }
 
         // Select either the default item (0) or the last selected item.
-        selectItem(mCurrentSelectedPosition);
+
     }
 
     @Override
@@ -102,16 +117,49 @@ public class NavigationDrawerFragment extends Fragment{
                 selectItem(position);
             }
         });
-        mDrawerListView.setAdapter(new ArrayAdapter<String>(
-                getActionBar().getThemedContext(),
-                android.R.layout.simple_list_item_activated_1,
-                android.R.id.text1,
-                new String[]{
-                        getString(R.string.title_section1),
-                        getString(R.string.title_section2),
-                        getString(R.string.title_section3),
-                }));
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("UsersProjects");
+        query.whereEqualTo("username", ParseUser.getCurrentUser().getUsername());
+        ParseObject comp = new ParseObject("Compare");
+        int flagEx = 0;
+        try {
+            List<ParseObject> projects = query.find();
+            projectsArray = new String[projects.size()+1];
+            int i =0;
+            for(i=0;i<projects.size();i++)
+            {
+                Object obj = projects.get(i);
+                projectsArray[i] = new String(((ParseObject)obj).getString("projectName"));
+            }
+            projectsArray[i]="Compare";
+        }
+        catch (ParseException e)
+        {
+            flagEx = 1;
+            Log.d("Exception", e.toString());
+        }
+        if(flagEx==0)
+        {
+            mDrawerListView.setAdapter(new ArrayAdapter<String>(
+                    getActionBar().getThemedContext(),
+                    android.R.layout.simple_list_item_multiple_choice,
+                    android.R.id.text1,
+                    projectsArray));
+        }
+        else {
+
+
+            mDrawerListView.setAdapter(new ArrayAdapter<String>(
+                    getActionBar().getThemedContext(),
+                    android.R.layout.simple_list_item_multiple_choice,
+                    android.R.id.text1,
+                    new String[]{
+                            getString(R.string.title_section1),
+                            getString(R.string.title_section2),
+                            getString(R.string.title_section3),
+                    }));
+        }
         mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
+        selectItem(mCurrentSelectedPosition);
         return mDrawerListView;
     }
 
@@ -195,7 +243,7 @@ public class NavigationDrawerFragment extends Fragment{
 
     private void selectItem(int position) {
         mCurrentSelectedPosition = position;
-        Fragment projFragment = new ProjectGraphFragment();
+        /*Fragment projFragment = new ProjectGraphFragment();
         Bundle args = new Bundle();
         args.putInt("Position",position);
         projFragment.setArguments(args);
@@ -203,7 +251,7 @@ public class NavigationDrawerFragment extends Fragment{
         fragmentManager.beginTransaction()
                 .replace(R.id.container, projFragment)
                 .commit();
-
+*/
         if (mDrawerListView != null) {
             mDrawerListView.setItemChecked(position, true);
         }
@@ -211,7 +259,7 @@ public class NavigationDrawerFragment extends Fragment{
             mDrawerLayout.closeDrawer(mFragmentContainerView);
         }
         if (mCallbacks != null) {
-            mCallbacks.onNavigationDrawerItemSelected(position);
+            mCallbacks.onNavigationDrawerItemSelected(projectsArray[position]);
         }
     }
 
@@ -307,6 +355,6 @@ public class NavigationDrawerFragment extends Fragment{
         /**
          * Called when an item in the navigation drawer is selected.
          */
-        void onNavigationDrawerItemSelected(int position);
+        void onNavigationDrawerItemSelected(String ProjectTitle);
     }
 }

@@ -27,11 +27,13 @@ public class GraphsActivity extends Activity
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
     private NavigationDrawerFragment mNavigationDrawerFragment;
+    private static final String ARG_SECTION_NUMBER = "section_number";
 
     /**
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
      */
     private CharSequence mTitle;
+    private static View fragmentView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,26 +51,25 @@ public class GraphsActivity extends Activity
     }
 
     @Override
-    public void onNavigationDrawerItemSelected(int position) {
+    public void onNavigationDrawerItemSelected(String ProjectTitle) {
         // update the main content by replacing fragments
         FragmentManager fragmentManager = getFragmentManager();
-        fragmentManager.beginTransaction()
+        /*fragmentManager.beginTransaction()
                 .replace(R.id.container, PlaceholderFragment.newInstance(position + 1))
+                .commit();*/
+        Fragment fragment = new ProjectGraphFragment();
+        Bundle args1 = new Bundle();
+        args1.putString("ProjectTitle",ProjectTitle);
+        //args1.
+        fragment.setArguments(args1);
+        fragmentManager.beginTransaction()
+                .replace(R.id.container,fragment)
                 .commit();
     }
 
-    public void onSectionAttached(int number) {
-        switch (number) {
-            case 1:
-                mTitle = getString(R.string.title_section1);
-                break;
-            case 2:
-                mTitle = getString(R.string.title_section2);
-                break;
-            case 3:
-                mTitle = getString(R.string.title_section3);
-                break;
-        }
+    public void onSectionAttached(String ProjectTitle) {
+        mTitle = ProjectTitle;
+
     }
 
     public void restoreActionBar() {
@@ -109,8 +110,8 @@ public class GraphsActivity extends Activity
     }
 
     @Override
-    public void onFragmentInteraction(Uri uri) {
-
+    public void onFragmentInteraction(String ProjectTitle) {
+      onSectionAttached(ProjectTitle);
     }
 
     /**
@@ -138,19 +139,20 @@ public class GraphsActivity extends Activity
         public PlaceholderFragment() {
         }
 
-        @Override
+        /*@Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_graphs, container, false);
-            return rootView;
-        }
+            fragmentView = inflater.inflate(R.layout.fragment_project_graph, container, false);
 
-        @Override
+            return fragmentView;
+        }*/
+
+        /*@Override
         public void onAttach(Activity activity) {
             super.onAttach(activity);
             ((GraphsActivity) activity).onSectionAttached(
                     getArguments().getInt(ARG_SECTION_NUMBER));
-        }
+        }*/
     }
 
     private void logout()

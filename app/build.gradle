@@ -1,5 +1,12 @@
 apply plugin: 'com.android.application'
 
+repositories{
+    flatDir{
+        dirs 'libs'
+    }
+}
+
+
 android {
     compileSdkVersion 21
     buildToolsVersion "21.1.0"
@@ -23,6 +30,15 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile files('libs/Parse-1.7.1/Parse-1.7.1.jar')
 
+    compile(name:'Chart', ext:'aar')
+    compile(name:'Common', ext:'aar')
+    compile(name:'Feedback', ext:'aar')
+    compile(name:'Input', ext:'aar')
+    compile(name:'Primitives', ext:'aar')
+
     compile 'com.parse.bolts:bolts-android:1.1.2'
     compile 'com.android.support:support-v4:21.0.0'
+    compile 'com.android.support:appcompat-v7:21.+'
+
+
 }
